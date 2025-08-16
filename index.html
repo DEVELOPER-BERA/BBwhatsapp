@@ -1,594 +1,1096 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BBwhatsapp - Modern Messaging App</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    /* Custom styles */
-    .chat-container {
-      height: calc(100vh - 120px);
-    }
-    .messages-container {
-      height: calc(100% - 60px);
-    }
-    .message-bubble {
-      max-width: 75%;
-    }
-    .fade-in {
-      animation: fadeIn 0.3s;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .status-indicator {
-      font-size: 0.75rem;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BBWhatsApp</title>
+    <style>
+        :root {
+            --primary-color: #128C7E;
+            --secondary-color: #075E54;
+            --accent-color: #25D366;
+            --light-color: #DCF8C6;
+            --dark-color: #333;
+            --gray-color: #ECE5DD;
+            --white-color: #fff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--gray-color);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .app-container {
+            width: 90%;
+            max-width: 1200px;
+            height: 90vh;
+            background-color: var(--white-color);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            overflow: hidden;
+            border-radius: 10px;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 30%;
+            background-color: var(--white-color);
+            border-right: 1px solid #eee;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-header {
+            background-color: var(--secondary-color);
+            color: var(--white-color);
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            background-color: var(--light-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--dark-color);
+            font-weight: bold;
+        }
+
+        .user-actions {
+            display: flex;
+        }
+
+        .user-actions i {
+            margin-left: 15px;
+            cursor: pointer;
+        }
+
+        .search-bar {
+            padding: 10px;
+            background-color: var(--white-color);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: none;
+            background-color: var(--gray-color);
+            outline: none;
+        }
+
+        .contacts-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .contact {
+            display: flex;
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .contact:hover {
+            background-color: var(--gray-color);
+        }
+
+        .contact.active {
+            background-color: #e5f3ff;
+        }
+
+        .contact-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--light-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 10px;
+            color: var(--dark-color);
+            font-weight: bold;
+        }
+
+        .contact-info {
+            flex: 1;
+        }
+
+        .contact-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .contact-last-message {
+            font-size: 0.8rem;
+            color: #666;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .contact-time {
+            font-size: 0.7rem;
+            color: #666;
+        }
+
+        /* Chat Area Styles */
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #e5ddd5;
+            background-image: url('https://web.whatsapp.com/img/bg-chat-tile-light_a4be512e7195b6b733d9110b408f075d.png');
+            position: relative;
+        }
+
+        .chat-header {
+            background-color: var(--gray-color);
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        .chat-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--light-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 10px;
+            color: var(--dark-color);
+            font-weight: bold;
+        }
+
+        .chat-info {
+            flex: 1;
+        }
+
+        .chat-name {
+            font-weight: 600;
+        }
+
+        .chat-status {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .chat-actions {
+            display: flex;
+        }
+
+        .chat-actions i {
+            margin-left: 15px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .messages-container {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            max-width: 70%;
+            margin-bottom: 15px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            position: relative;
+            word-wrap: break-word;
+        }
+
+        .received {
+            align-self: flex-start;
+            background-color: var(--white-color);
+        }
+
+        .sent {
+            align-self: flex-end;
+            background-color: var(--light-color);
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            color: #666;
+            text-align: right;
+            margin-top: 5px;
+        }
+
+        .message-input-container {
+            padding: 10px;
+            background-color: var(--gray-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 10px 15px;
+            border-radius: 20px;
+            border: none;
+            outline: none;
+            margin: 0 10px;
+        }
+
+        .send-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        /* Auth Screens */
+        .auth-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--primary-color);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .auth-box {
+            background-color: var(--white-color);
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .auth-title {
+            color: var(--secondary-color);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--dark-color);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        .auth-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .auth-link {
+            text-align: center;
+            margin-top: 15px;
+            color: var(--dark-color);
+        }
+
+        .auth-link a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        /* Profile Modal */
+        .profile-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .profile-content {
+            background-color: var(--white-color);
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .profile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: var(--light-color);
+            margin: 0 auto 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            color: var(--dark-color);
+            font-weight: bold;
+        }
+
+        .close-button {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .app-container {
+                width: 100%;
+                height: 100vh;
+                border-radius: 0;
+            }
+
+            .sidebar {
+                width: 100%;
+            }
+
+            .chat-area {
+                display: none;
+            }
+
+            .chat-area.active {
+                display: flex;
+            }
+
+            .sidebar.hidden {
+                display: none;
+            }
+        }
+    </style>
 </head>
-<body class="bg-gray-100">
-  <div id="app" class="max-w-md mx-auto bg-white shadow-lg h-screen flex flex-col">
-    <!-- Auth Container -->
-    <div id="auth-container" class="p-8 flex flex-col h-full justify-center">
-      <h1 class="text-3xl font-bold text-blue-600 mb-8 text-center">BBwhatsapp</h1>
-      
-      <!-- Login Form -->
-      <div id="login-form" class="space-y-4 fade-in">
-        <div>
-          <label for="phone" class="block text-sm font-medium text-gray-700">Phone Number</label>
-          <input type="tel" id="phone" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="+254712345678">
-        </div>
-        <div>
-          <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-          <input type="password" id="password" class="mt-1 block w-full border border-gray-300 rounded-md p-2">
-        </div>
-        <button onclick="login()" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition">Login</button>
-        <p class="text-sm text-center">Don't have an account? <span class="text-blue-600 cursor-pointer" onclick="showRegister()">Register</span></p>
-        <p class="text-sm text-center text-blue-600 cursor-pointer" onclick="showReset()">Forgot password?</p>
-      </div>
-      
-      <!-- Register Form -->
-      <div id="register-form" class="hidden space-y-4">
-        <div>
-          <label for="reg-phone" class="block text-sm font-medium text-gray-700">Phone Number</label>
-          <input type="tel" id="reg-phone" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="+254712345678">
-        </div>
-        <div>
-          <label for="reg-password" class="block text-sm font-medium text-gray-700">Password</label>
-          <input type="password" id="reg-password" class="mt-1 block w-full border border-gray-300 rounded-md p-2">
-        </div>
-        <button onclick="register()" class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition">Register</button>
-        <p class="text-sm text-center">Already have an account? <span class="text-blue-600 cursor-pointer" onclick="showLogin()">Login</span></p>
-      </div>
-      
-      <!-- Reset Password Form -->
-      <div id="reset-form" class="hidden space-y-4">
-        <div>
-          <label for="reset-phone" class="block text-sm font-medium text-gray-700">Phone Number</label>
-          <input type="tel" id="reset-phone" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="+254712345678">
-        </div>
-        <button onclick="resetPassword()" class="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition">Reset Password</button>
-        <p class="text-sm text-center">Remember your password? <span class="text-blue-600 cursor-pointer" onclick="showLogin()">Login</span></p>
-      </div>
-    </div>
-    
+<body>
     <!-- Main App Container -->
-    <div id="main-container" class="hidden flex-1 flex flex-col">
-      <!-- Header -->
-      <header class="bg-blue-600 text-white p-4 flex justify-between items-center">
-        <h2 id="current-chat-title" class="text-xl font-bold">Public Chat</h2>
-        <div class="flex space-x-4">
-          <i class="fas fa-search cursor-pointer" onclick="showSearch()"></i>
-          <i class="fas fa-sign-out-alt cursor-pointer" onclick="logout()"></i>
-        </div>
-      </header>
-      
-      <!-- Search Modal -->
-      <div id="search-modal" class="hidden absolute inset-0 bg-white z-10 p-4">
-        <div class="flex items-center mb-4">
-          <input type="text" id="search-input" class="flex-1 border border-gray-300 rounded-l-md p-2" placeholder="Search by phone or name">
-          <button class="bg-blue-600 text-white p-2 rounded-r-md" onclick="performSearch()">Search</button>
-          <button class="ml-2 text-gray-500" onclick="hideSearch()">
-            <i class="fas fa-times"></i>
-          </button>
-        </div>
-        <div id="search-results" class="space-y-2"></div>
-      </div>
-      
-      <!-- Chat Container -->
-      <div class="flex flex-1">
-        <!-- Friends/Sidebar -->
-        <div id="friends-sidebar" class="w-1/3 border-r border-gray-200 bg-gray-50 overflow-y-auto">
-          <div class="p-2 bg-blue-600 text-white">
-            <h3 class="font-bold">Public Chat</h3>
-          </div>
-          <div id="friends-list" class="p-2 space-y-2">
-            <!-- Friends will be populated here -->
-          </div>
-          <div class="p-2 bg-blue-600 text-white">
-            <h3 class="font-bold">Private Chats</h3>
-          </div>
-          <div id="private-chats-list" class="p-2 space-y-2">
-            <!-- Private chats will be populated here -->
-          </div>
-        </div>
-        
-        <!-- Messages -->
-        <div id="chat-container" class="flex-1 flex flex-col">
-          <div id="messages-container" class="messages-container p-4 overflow-y-auto space-y-3">
-            <!-- Messages will appear here -->
-          </div>
-          
-          <!-- Message Input -->
-          <div class="p-2 border-t border-gray-200 bg-gray-50">
-            <div class="flex items-center">
-              <input type="text" id="message-input" class="flex-1 border border-gray-300 rounded-l-md p-2" placeholder="Type your message...">
-              <button onclick="sendMessage()" class="bg-blue-600 text-white p-2 rounded-r-md hover:bg-blue-700 transition">
-                <i class="fas fa-paper-plane"></i>
-              </button>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="user-header">
+                <div class="user-info">
+                    <div class="user-avatar" id="current-user-avatar">U</div>
+                    <span id="current-user-name">User</span>
+                </div>
+                <div class="user-actions">
+                    <i class="fas fa-search"></i>
+                    <i class="fas fa-ellipsis-v" id="profile-button"></i>
+                </div>
             </div>
-            <div class="flex justify-between mt-2">
-              <div class="flex space-x-2">
-                <label class="cursor-pointer">
-                  <i class="fas fa-image text-blue-600"></i>
-                  <input type="file" id="image-input" accept="image/*" class="hidden" onchange="handleImageUpload()">
-                </label>
-                <label class="cursor-pointer">
-                  <i class="fas fa-video text-blue-600"></i>
-                  <input type="file" id="video-input" accept="video/*" class="hidden" onchange="handleVideoUpload()">
-                </label>
-                <label class="cursor-pointer">
-                  <i class="fas fa-microphone text-blue-600"></i>
-                  <input type="file" id="audio-input" accept="audio/*" class="hidden" onchange="handleAudioUpload()">
-                </label>
-              </div>
+            <div class="search-bar">
+                <input type="text" class="search-input" placeholder="Search or start new chat">
             </div>
-          </div>
+            <div class="contacts-list" id="contacts-list">
+                <!-- Contacts will be added here dynamically -->
+            </div>
         </div>
-      </div>
+
+        <!-- Chat Area -->
+        <div class="chat-area" id="chat-area">
+            <div class="chat-header">
+                <div class="chat-avatar" id="chat-user-avatar">C</div>
+                <div class="chat-info">
+                    <div class="chat-name" id="chat-user-name">Contact Name</div>
+                    <div class="chat-status" id="chat-user-status">Online</div>
+                </div>
+                <div class="chat-actions">
+                    <i class="fas fa-search"></i>
+                    <i class="fas fa-ellipsis-v"></i>
+                </div>
+            </div>
+            <div class="messages-container" id="messages-container">
+                <!-- Messages will be added here dynamically -->
+            </div>
+            <div class="message-input-container">
+                <i class="fas fa-smile"></i>
+                <input type="text" class="message-input" id="message-input" placeholder="Type a message">
+                <button class="send-button" id="send-button">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <script>
-    // Mock database using localStorage
-    const db = {
-      users: JSON.parse(localStorage.getItem('bbwhatsapp_users')) || [],
-      messages: JSON.parse(localStorage.getItem('bbwhatsapp_messages')) || [],
-      currentUser: null,
-      currentChat: 'public'
-    };
-
-    // DOM Elements
-    const authContainer = document.getElementById('auth-container');
-    const mainContainer = document.getElementById('main-container');
-    const loginForm = document.getElementById('login-form');
-    const registerForm = document.getElementById('register-form');
-    const resetForm = document.getElementById('reset-form');
-    const friendsList = document.getElementById('friends-list');
-    const privateChatsList = document.getElementById('private-chats-list');
-    const messagesContainer = document.getElementById('messages-container');
-    const searchModal = document.getElementById('search-modal');
-    const searchResults = document.getElementById('search-results');
-
-    // Initialize the app
-    function init() {
-      // Check if user is already logged in
-      const user = JSON.parse(localStorage.getItem('bbwhatsapp_currentUser'));
-      if (user) {
-        db.currentUser = user;
-        showMainApp();
-        loadChats();
-        loadMessages();
-      }
-    }
-
-    // Show login form
-    function showLogin() {
-      loginForm.classList.remove('hidden');
-      registerForm.classList.add('hidden');
-      resetForm.classList.add('hidden');
-    }
-
-    // Show register form
-    function showRegister() {
-      loginForm.classList.add('hidden');
-      registerForm.classList.remove('hidden');
-      resetForm.classList.add('hidden');
-    }
-
-    // Show reset password form
-    function showReset() {
-      loginForm.classList.add('hidden');
-      registerForm.classList.add('hidden');
-      resetForm.classList.remove('hidden');
-    }
-
-    // Login function
-    function login() {
-      const phone = document.getElementById('phone').value;
-      const password = document.getElementById('password').value;
-
-      // Validation
-      if (!phone || !password) {
-        alert('Please enter both phone and password');
-        return;
-      }
-
-      // Find user
-      const user = db.users.find(u => u.phone === phone && u.password === password);
-      if (user) {
-        db.currentUser = user;
-        localStorage.setItem('bbwhatsapp_currentUser', JSON.stringify(user));
-        showMainApp();
-        loadChats();
-        loadMessages();
-      } else {
-        alert('Invalid phone number or password');
-      }
-    }
-
-    // Register function
-    function register() {
-      const phone = document.getElementById('reg-phone').value;
-      const password = document.getElementById('reg-password').value;
-
-      // Validation
-      if (!phone || !password) {
-        alert('Please enter both phone and password');
-        return;
-      }
-
-      // Check if user exists
-      if (db.users.some(u => u.phone === phone)) {
-        alert('User with this phone already exists');
-        return;
-      }
-
-      // Create new user
-      const newUser = {
-        id: Date.now().toString(),
-        phone,
-        password,
-        name: `User_${Math.floor(Math.random() * 1000)}`,
-        friends: []
-      };
-
-      db.users.push(newUser);
-      localStorage.setItem('bbwhatsapp_users', JSON.stringify(db.users));
-      db.currentUser = newUser;
-      localStorage.setItem('bbwhatsapp_currentUser', JSON.stringify(newUser));
-      showMainApp();
-      loadChats();
-      loadMessages();
-    }
-
-    // Reset password function
-    function resetPassword() {
-      const phone = document.getElementById('reset-phone').value;
-      
-      if (!phone) {
-        alert('Please enter your phone number');
-        return;
-      }
-
-      const user = db.users.find(u => u.phone === phone);
-      if (user) {
-        const newPassword = prompt('Enter new password');
-        if (newPassword) {
-          user.password = newPassword;
-          localStorage.setItem('bbwhatsapp_users', JSON.stringify(db.users));
-          alert('Password reset successful');
-          showLogin();
-        }
-      } else {
-        alert('No user found with this phone number');
-      }
-    }
-
-    // Logout function
-    function logout() {
-      db.currentUser = null;
-      localStorage.removeItem('bbwhatsapp_currentUser');
-      showLogin();
-      authContainer.classList.remove('hidden');
-      mainContainer.classList.add('hidden');
-    }
-
-    // Show main app
-    function showMainApp() {
-      authContainer.classList.add('hidden');
-      mainContainer.classList.remove('hidden');
-    }
-
-    // Load chats
-    function loadChats() {
-      // Load public chat (all users as potential friends)
-      const otherUsers = db.users.filter(u => u.id !== db.currentUser.id);
-      
-      // Clear and populate friends list
-      friendsList.innerHTML = '';
-      otherUsers.forEach(user => {
-        const friendElement = document.createElement('div');
-        friendElement.className = 'p-2 hover:bg-gray-200 rounded cursor-pointer';
-        friendElement.innerHTML = `
-          <div class="flex items-center">
-            <img src="https://placehold.co/40x40/3b82f6/ffffff?text=${user.name.charAt(0)}" 
-                 alt="Profile picture of ${user.name}" 
-                 class="w-8 h-8 rounded-full mr-2">
-            <div>
-              <p class="font-medium">${user.name}</p>
-              <p class="text-xs text-gray-500">${user.phone}</p>
+    <!-- Auth Screens -->
+    <div class="auth-container" id="login-container">
+        <div class="auth-box">
+            <h2 class="auth-title">Login to BBWhatsApp</h2>
+            <div class="error-message" id="login-error"></div>
+            <form class="auth-form" id="login-form">
+                <div class="form-group">
+                    <label for="login-email">Email or Phone</label>
+                    <input type="text" id="login-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" required>
+                </div>
+                <button type="submit" class="auth-button">Login</button>
+            </form>
+            <div class="auth-link">
+                Don't have an account? <a href="#" id="show-register">Register</a>
             </div>
-          </div>
-        `;
-        friendElement.onclick = () => openPrivateChat(user.id);
-        friendsList.appendChild(friendElement);
-      });
-
-      // Load private chats
-      updatePrivateChatsList();
-    }
-
-    // Update private chats list
-    function updatePrivateChatsList() {
-      privateChatsList.innerHTML = '';
-      
-      // Get unique chat participants
-      const chatParticipants = new Set();
-      db.messages.forEach(msg => {
-        if (msg.to === db.currentUser.id || msg.from === db.currentUser.id) {
-          if (msg.to === 'public') return; // Skip public chat
-          const otherUserId = msg.from === db.currentUser.id ? msg.to : msg.from;
-          chatParticipants.add(otherUserId);
-        }
-      });
-
-      // Create chat items
-      chatParticipants.forEach(userId => {
-        const user = db.users.find(u => u.id === userId);
-        if (user) {
-          const chatElement = document.createElement('div');
-          chatElement.className = 'p-2 hover:bg-gray-200 rounded cursor-pointer';
-          chatElement.innerHTML = `
-            <div class="flex items-center">
-              <img src="https://placehold.co/40x40/3b82f6/ffffff?text=${user.name.charAt(0)}" 
-                   alt="Profile picture of ${user.name}" 
-                   class="w-8 h-8 rounded-full mr-2">
-              <div>
-                <p class="font-medium">${user.name}</p>
-                <p class="text-xs text-gray-500">Last message</p>
-              </div>
+            <div class="auth-link">
+                Forgot password? <a href="#" id="show-forgot">Reset it</a>
             </div>
-          `;
-          chatElement.onclick = () => openPrivateChat(user.id);
-          privateChatsList.appendChild(chatElement);
-        }
-      });
-    }
+        </div>
+    </div>
 
-    // Open private chat
-    function openPrivateChat(userId) {
-      db.currentChat = userId;
-      document.getElementById('current-chat-title').textContent = db.users.find(u => u.id === userId).name;
-      loadMessages();
-    }
-
-    // Open public chat
-    function openPublicChat() {
-      db.currentChat = 'public';
-      document.getElementById('current-chat-title').textContent = 'Public Chat';
-      loadMessages();
-    }
-
-    // Load messages
-    function loadMessages() {
-      messagesContainer.innerHTML = '';
-      
-      const messages = db.messages.filter(msg => {
-        if (db.currentChat === 'public') {
-          return msg.to === 'public';
-        } else {
-          return (msg.from === db.currentUser.id && msg.to === db.currentChat) || 
-                 (msg.from === db.currentChat && msg.to === db.currentUser.id);
-        }
-      });
-
-      messages.forEach(msg => {
-        const isCurrentUser = msg.from === db.currentUser.id;
-        const sender = db.users.find(u => u.id === msg.from);
-        
-        const messageElement = document.createElement('div');
-        messageElement.className = `flex ${isCurrentUser ? 'justify-end' : 'justify-start'} fade-in`;
-        
-        let content;
-        if (msg.type === 'text') {
-          content = `<p class="text-sm">${msg.content}</p>`;
-        } else if (msg.type === 'image') {
-          content = `<img src="${msg.content}" alt="Shared image" class="max-w-xs rounded-lg">`;
-        } else if (msg.type === 'video') {
-          content = `<video src="${msg.content}" controls class="max-w-xs rounded-lg"></video>`;
-        } else if (msg.type === 'audio') {
-          content = `<audio src="${msg.content}" controls></audio>`;
-        }
-
-        messageElement.innerHTML = `
-          <div class="message-bubble ${isCurrentUser ? 'bg-blue-100' : 'bg-gray-200'} rounded-lg p-3 my-1">
-            ${!isCurrentUser ? `
-              <p class="text-xs font-medium text-blue-600 mb-1">${sender ? sender.name : 'Unknown'}</p>
-            ` : ''}
-            ${content}
-            <div class="status-indicator text-right text-gray-500 mt-1">
-              ${isCurrentUser ? formatStatusIcons(new Date(msg.timestamp)) : ''}
-              <span class="text-xs">${formatTime(msg.timestamp)}</span>
+    <div class="auth-container" id="register-container">
+        <div class="auth-box">
+            <h2 class="auth-title">Register for BBWhatsApp</h2>
+            <div class="error-message" id="register-error"></div>
+            <form class="auth-form" id="register-form">
+                <div class="form-group">
+                    <label for="register-name">Name</label>
+                    <input type="text" id="register-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-email">Email</label>
+                    <input type="email" id="register-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-phone">Phone (optional)</label>
+                    <input type="text" id="register-phone">
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Password</label>
+                    <input type="password" id="register-password" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-confirm">Confirm Password</label>
+                    <input type="password" id="register-confirm" required>
+                </div>
+                <button type="submit" class="auth-button">Register</button>
+            </form>
+            <div class="auth-link">
+                Already have an account? <a href="#" id="show-login">Login</a>
             </div>
-          </div>
-        `;
-        
-        messagesContainer.appendChild(messageElement);
-      });
+        </div>
+    </div>
 
-      // Scroll to bottom
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    }
+    <div class="auth-container" id="forgot-container">
+        <div class="auth-box">
+            <h2 class="auth-title">Forgot Password</h2>
+            <div class="error-message" id="forgot-error"></div>
+            <div class="success-message" id="forgot-success"></div>
+            <form class="auth-form" id="forgot-form">
+                <div class="form-group">
+                    <label for="forgot-email">Email or Phone</label>
+                    <input type="text" id="forgot-email" required>
+                </div>
+                <button type="submit" class="auth-button">Send OTP</button>
+            </form>
+            <div class="auth-link">
+                Remember your password? <a href="#" id="show-login-from-forgot">Login</a>
+            </div>
+        </div>
+    </div>
 
-    // Send message
-    function sendMessage() {
-      const input = document.getElementById('message-input');
-      const content = input.value.trim();
-      
-      if (!content) return;
-      
-      const newMessage = {
-        id: Date.now().toString(),
-        from: db.currentUser.id,
-        to: db.currentChat,
-        type: 'text',
-        content,
-        timestamp: new Date().toISOString()
-      };
-      
-      db.messages.push(newMessage);
-      localStorage.setItem('bbwhatsapp_messages', JSON.stringify(db.messages));
-      input.value = '';
-      loadMessages();
-      updatePrivateChatsList();
-    }
+    <div class="auth-container" id="reset-container">
+        <div class="auth-box">
+            <h2 class="auth-title">Reset Password</h2>
+            <div class="error-message" id="reset-error"></div>
+            <form class="auth-form" id="reset-form">
+                <div class="form-group">
+                    <label for="reset-email">Email or Phone</label>
+                    <input type="text" id="reset-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="reset-otp">OTP</label>
+                    <input type="text" id="reset-otp" required>
+                </div>
+                <div class="form-group">
+                    <label for="reset-password">New Password</label>
+                    <input type="password" id="reset-password" required>
+                </div>
+                <div class="form-group">
+                    <label for="reset-confirm">Confirm Password</label>
+                    <input type="password" id="reset-confirm" required>
+                </div>
+                <button type="submit" class="auth-button">Reset Password</button>
+            </form>
+        </div>
+    </div>
 
-    // Handle image upload
-    function handleImageUpload() {
-      const file = document.getElementById('image-input').files[0];
-      if (!file) return;
-      
-      // In a real app, you would upload to a server and get a URL
-      // For demo, we'll use a placeholder
-      const newMessage = {
-        id: Date.now().toString(),
-        from: db.currentUser.id,
-        to: db.currentChat,
-        type: 'image',
-        content: 'https://placehold.co/600x400/3b82f6/ffffff?text=Uploaded+Image',
-        timestamp: new Date().toISOString()
-      };
-      
-      db.messages.push(newMessage);
-      localStorage.setItem('bbwhatsapp_messages', JSON.stringify(db.messages));
-      loadMessages();
-      updatePrivateChatsList();
-    }
+    <!-- Profile Modal -->
+    <div class="profile-modal" id="profile-modal">
+        <div class="profile-content">
+            <div class="profile-header">
+                <h2>Profile</h2>
+                <button class="close-button" id="close-profile">&times;</button>
+            </div>
+            <div class="profile-avatar" id="modal-user-avatar">U</div>
+            <form id="profile-form">
+                <div class="form-group">
+                    <label for="profile-name">Name</label>
+                    <input type="text" id="profile-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="profile-status">Status</label>
+                    <input type="text" id="profile-status">
+                </div>
+                <div class="form-group">
+                    <label for="profile-picture">Profile Picture URL</label>
+                    <input type="text" id="profile-picture">
+                </div>
+                <button type="submit" class="auth-button">Update Profile</button>
+            </form>
+            <button class="auth-button" id="logout-button" style="background-color: #e74c3c; margin-top: 10px;">Logout</button>
+        </div>
+    </div>
 
-    // Handle video upload
-    function handleVideoUpload() {
-      const file = document.getElementById('video-input').files[0];
-      if (!file) return;
-      
-      // In a real app, you would upload to a server and get a URL
-      // For demo, we'll use a placeholder
-      const newMessage = {
-        id: Date.now().toString(),
-        from: db.currentUser.id,
-        to: db.currentChat,
-        type: 'video',
-        content: 'https://samplelib.com/lib/preview/mp4/sample-5s.mp4',
-        timestamp: new Date().toISOString()
-      };
-      
-      db.messages.push(newMessage);
-      localStorage.setItem('bbwhatsapp_messages', JSON.stringify(db.messages));
-      loadMessages();
-      updatePrivateChatsList();
-    }
-
-    // Handle audio upload
-    function handleAudioUpload() {
-      const file = document.getElementById('audio-input').files[0];
-      if (!file) return;
-      
-      // In a real app, you would upload to a server and get a URL
-      // For demo, we'll use a placeholder
-      const newMessage = {
-        id: Date.now().toString(),
-        from: db.currentUser.id,
-        to: db.currentChat,
-        type: 'audio',
-        content: 'https://samplelib.com/lib/preview/mp3/sample-3s.mp3',
-        timestamp: new Date().toISOString()
-      };
-      
-      db.messages.push(newMessage);
-      localStorage.setItem('bbwhatsapp_messages', JSON.stringify(db.messages));
-      loadMessages();
-      updatePrivateChatsList();
-    }
-
-    // Show search modal
-    function showSearch() {
-      searchModal.classList.remove('hidden');
-    }
-
-    // Hide search modal
-    function hideSearch() {
-      searchModal.classList.add('hidden');
-    }
-
-    // Perform search
-    function performSearch() {
-      const query = document.getElementById('search-input').value.toLowerCase();
-      if (!query) return;
-      
-      const results = db.users.filter(u => 
-        u.id !== db.currentUser.id && 
-        (u.phone.includes(query) || u.name.toLowerCase().includes(query))
-      );
-      
-      searchResults.innerHTML = '';
-      if (results.length === 0) {
-        searchResults.innerHTML = '<p class="text-gray-500 p-2">No users found</p>';
-        return;
-      }
-      
-      results.forEach(user => {
-        const resultElement = document.createElement('div');
-        resultElement.className = 'p-2 hover:bg-gray-100 rounded cursor-pointer flex items-center';
-        resultElement.innerHTML = `
-          <img src="https://placehold.co/40x40/3b82f6/ffffff?text=${user.name.charAt(0)}" 
-               alt="Profile picture of ${user.name}" 
-               class="w-8 h-8 rounded-full mr-2">
-          <div>
-            <p class="font-medium">${user.name}</p>
-            <p class="text-xs text-gray-500">${user.phone}</p>
-          </div>
-        `;
-        resultElement.onclick = () => {
-          openPrivateChat(user.id);
-          hideSearch();
+    <script>
+        // Mock database
+        const mockDatabase = {
+            users: [
+                {
+                    id: 1,
+                    name: "John Doe",
+                    email: "john@example.com",
+                    phone: "1234567890",
+                    password: "password123",
+                    status: "Hey there! I'm using BBWhatsApp",
+                    avatar: "J",
+                    online: true
+                },
+                {
+                    id: 2,
+                    name: "Jane Smith",
+                    email: "jane@example.com",
+                    phone: "0987654321",
+                    password: "password123",
+                    status: "Available",
+                    avatar: "J",
+                    online: false
+                },
+                {
+                    id: 3,
+                    name: "Bob Johnson",
+                    email: "bob@example.com",
+                    phone: "5551234567",
+                    password: "password123",
+                    status: "At work",
+                    avatar: "B",
+                    online: true
+                }
+            ],
+            messages: [
+                {
+                    id: 1,
+                    senderId: 1,
+                    recipientId: 2,
+                    content: "Hi Jane, how are you?",
+                    timestamp: "10:30 AM",
+                    status: "read"
+                },
+                {
+                    id: 2,
+                    senderId: 2,
+                    recipientId: 1,
+                    content: "I'm good, thanks! How about you?",
+                    timestamp: "10:32 AM",
+                    status: "read"
+                },
+                {
+                    id: 3,
+                    senderId: 1,
+                    recipientId: 2,
+                    content: "Doing well! Just wanted to check in.",
+                    timestamp: "10:33 AM",
+                    status: "delivered"
+                },
+                {
+                    id: 4,
+                    senderId: 1,
+                    recipientId: 3,
+                    content: "Hey Bob, are we still meeting tomorrow?",
+                    timestamp: "9:15 AM",
+                    status: "sent"
+                }
+            ],
+            currentUser: null
         };
-        searchResults.appendChild(resultElement);
-      });
-    }
 
-    // Format time
-    function formatTime(timestamp) {
-      const date = new Date(timestamp);
-      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    }
+        // DOM Elements
+        const sidebar = document.getElementById('sidebar');
+        const chatArea = document.getElementById('chat-area');
+        const contactsList = document.getElementById('contacts-list');
+        const messagesContainer = document.getElementById('messages-container');
+        const messageInput = document.getElementById('message-input');
+        const sendButton = document.getElementById('send-button');
+        const currentUserAvatar = document.getElementById('current-user-avatar');
+        const currentUserName = document.getElementById('current-user-name');
+        const chatUserAvatar = document.getElementById('chat-user-avatar');
+        const chatUserName = document.getElementById('chat-user-name');
+        const chatUserStatus = document.getElementById('chat-user-status');
+        const profileButton = document.getElementById('profile-button');
+        const profileModal = document.getElementById('profile-modal');
+        const closeProfile = document.getElementById('close-profile');
+        const profileForm = document.getElementById('profile-form');
+        const profileName = document.getElementById('profile-name');
+        const profileStatus = document.getElementById('profile-status');
+        const profilePicture = document.getElementById('profile-picture');
+        const modalUserAvatar = document.getElementById('modal-user-avatar');
+        const logoutButton = document.getElementById('logout-button');
 
-    // Format status icons
-    function formatStatusIcons(timestamp) {
-      const now = new Date();
-      const diff = now - timestamp;
-      
-      if (diff < 60000) { // Less than 1 min
-        return '<i class="fas fa-check text-gray-400"></i>';
-      } else {
-        return '<i class="fas fa-check-double text-blue-500"></i>';
-      }
-    }
+        // Auth elements
+        const loginContainer = document.getElementById('login-container');
+        const registerContainer = document.getElementById('register-container');
+        const forgotContainer = document.getElementById('forgot-container');
+        const resetContainer = document.getElementById('reset-container');
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const forgotForm = document.getElementById('forgot-form');
+        const resetForm = document.getElementById('reset-form');
+        const showRegister = document.getElementById('show-register');
+        const showLogin = document.getElementById('show-login');
+        const showForgot = document.getElementById('show-forgot');
+        const showLoginFromForgot = document.getElementById('show-login-from-forgot');
+        const loginError = document.getElementById('login-error');
+        const registerError = document.getElementById('register-error');
+        const forgotError = document.getElementById('forgot-error');
+        const forgotSuccess = document.getElementById('forgot-success');
+        const resetError = document.getElementById('reset-error');
 
-    // Initialize the app
-    document.addEventListener('DOMContentLoaded', init);
-  </script>
+        // State
+        let currentChatUser = null;
+
+        // Initialize the app
+        function init() {
+            // Check if user is logged in (in a real app, this would check localStorage/cookies)
+            if (mockDatabase.currentUser) {
+                showApp();
+            } else {
+                showLoginScreen();
+            }
+
+            // Load contacts
+            loadContacts();
+
+            // Set up event listeners
+            setupEventListeners();
+        }
+
+        // Show the main app interface
+        function showApp() {
+            loginContainer.style.display = 'none';
+            registerContainer.style.display = 'none';
+            forgotContainer.style.display = 'none';
+            resetContainer.style.display = 'none';
+
+            // Update current user info
+            if (mockDatabase.currentUser) {
+                currentUserAvatar.textContent = mockDatabase.currentUser.avatar;
+                currentUserName.textContent = mockDatabase.currentUser.name;
+                modalUserAvatar.textContent = mockDatabase.currentUser.avatar;
+                profileName.value = mockDatabase.currentUser.name;
+                profileStatus.value = mockDatabase.currentUser.status;
+                profilePicture.value = mockDatabase.currentUser.avatar;
+            }
+        }
+
+        // Show login screen
+        function showLoginScreen() {
+            loginContainer.style.display = 'flex';
+            registerContainer.style.display = 'none';
+            forgotContainer.style.display = 'none';
+            resetContainer.style.display = 'none';
+        }
+
+        // Show register screen
+        function showRegisterScreen() {
+            loginContainer.style.display = 'none';
+            registerContainer.style.display = 'flex';
+            forgotContainer.style.display = 'none';
+            resetContainer.style.display = 'none';
+        }
+
+        // Show forgot password screen
+        function showForgotScreen() {
+            loginContainer.style.display = 'none';
+            registerContainer.style.display = 'none';
+            forgotContainer.style.display = 'flex';
+            resetContainer.style.display = 'none';
+        }
+
+        // Show reset password screen
+        function showResetScreen() {
+            loginContainer.style.display = 'none';
+            registerContainer.style.display = 'none';
+            forgotContainer.style.display = 'none';
+            resetContainer.style.display = 'flex';
+        }
+
+        // Load contacts
+        function loadContacts() {
+            contactsList.innerHTML = '';
+            
+            if (!mockDatabase.currentUser) return;
+
+            // Filter out current user
+            const contacts = mockDatabase.users.filter(user => user.id !== mockDatabase.currentUser.id);
+            
+            contacts.forEach(contact => {
+                // Find last message with this contact
+                const messagesWithContact = mockDatabase.messages.filter(msg => 
+                    (msg.senderId === mockDatabase.currentUser.id && msg.recipientId === contact.id) ||
+                    (msg.senderId === contact.id && msg.recipientId === mockDatabase.currentUser.id)
+                );
+                
+                const lastMessage = messagesWithContact.length > 0 
+                    ? messagesWithContact[messagesWithContact.length - 1]
+                    : null;
+
+                const contactElement = document.createElement('div');
+                contactElement.className = 'contact';
+                contactElement.innerHTML = `
+                    <div class="contact-avatar">${contact.avatar}</div>
+                    <div class="contact-info">
+                        <div class="contact-name">${contact.name}</div>
+                        <div class="contact-last-message">${lastMessage ? lastMessage.content : 'No messages yet'}</div>
+                    </div>
+                    <div class="contact-time">${lastMessage ? lastMessage.timestamp : ''}</div>
+                `;
+                
+                contactElement.addEventListener('click', () => openChat(contact));
+                contactsList.appendChild(contactElement);
+            });
+        }
+
+        // Open chat with a user
+        function openChat(user) {
+            currentChatUser = user;
+            
+            // Update chat header
+            chatUserAvatar.textContent = user.avatar;
+            chatUserName.textContent = user.name;
+            chatUserStatus.textContent = user.online ? 'Online' : 'Offline';
+            
+            // Load messages
+            loadMessages(user.id);
+            
+            // In a mobile view, hide sidebar and show chat area
+            if (window.innerWidth <= 768) {
+                sidebar.classList.add('hidden');
+                chatArea.classList.add('active');
+            }
+        }
+
+        // Load messages for a chat
+        function loadMessages(contactId) {
+            messagesContainer.innerHTML = '';
+            
+            if (!mockDatabase.currentUser) return;
+            
+            const messages = mockDatabase.messages.filter(msg => 
+                (msg.senderId === mockDatabase.currentUser.id && msg.recipientId === contactId) ||
+                (msg.senderId === contactId && msg.recipientId === mockDatabase.currentUser.id)
+            );
+            
+            messages.forEach(msg => {
+                const isSent = msg.senderId === mockDatabase.currentUser.id;
+                const messageElement = document.createElement('div');
+                messageElement.className = `message ${isSent ? 'sent' : 'received'}`;
+                messageElement.innerHTML = `
+                    <div class="message-content">${msg.content}</div>
+                    <div class="message-time">${msg.timestamp} • ${msg.status}</div>
+                `;
+                messagesContainer.appendChild(messageElement);
+            });
+            
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Send a message
+        function sendMessage() {
+            const content = messageInput.value.trim();
+            if (!content || !currentChatUser || !mockDatabase.currentUser) return;
+            
+            const newMessage = {
+                id: mockDatabase.messages.length + 1,
+                senderId: mockDatabase.currentUser.id,
+                recipientId: currentChatUser.id,
+                content: content,
+                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                status: 'sent'
+            };
+            
+            mockDatabase.messages.push(newMessage);
+            messageInput.value = '';
+            
+            // Update UI
+            loadMessages(currentChatUser.id);
+            
+            // Simulate message delivery and read
+            setTimeout(() => {
+                newMessage.status = 'delivered';
+                loadMessages(currentChatUser.id);
+            }, 1000);
+            
+            setTimeout(() => {
+                newMessage.status = 'read';
+                loadMessages(currentChatUser.id);
+            }, 2000);
+            
+            // Update last message in contacts list
+            loadContacts();
+        }
+
+        // Set up event listeners
+        function setupEventListeners() {
+            // Auth navigation
+            showRegister.addEventListener('click', (e) => {
+                e.preventDefault();
+                showRegisterScreen();
+            });
+            
+            showLogin.addEventListener('click', (e) => {
+                e.preventDefault();
+                showLoginScreen();
+            });
+            
+            showForgot.addEventListener('click', (e) => {
+                e.preventDefault();
+                showForgotScreen();
+            });
+            
+            showLoginFromForgot.addEventListener('click', (e) => {
+                e.preventDefault();
+                showLoginScreen();
+            });
+            
+            // Auth forms
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const email = document.getElementById('login-email').value;
+                const password = document.getElementById('login-password').value;
+                
+                // Find user
+                const user = mockDatabase.users.find(u => 
+                    (u.email === email || u.phone === email) && u.password === password
+                );
+                
+                if (user) {
+                    mockDatabase.currentUser = user;
+                    showApp();
+                    loginError.textContent = '';
+                } else {
+                    loginError.textContent = 'Invalid email/phone or password';
+                }
+            });
+            
+            registerForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const name = document.getElementById('register-name').value;
+                const email = document.getElementById('register-email').value;
+                const phone = document.getElementById('register-phone').value;
+                const password = document.getElementById('register-password').value;
+                const confirm = document.getElementById('register-confirm').value;
+                
+                if (password !== confirm) {
+                    registerError.textContent = 'Passwords do not match';
+                    return;
+                }
+                
+                // Check if email already exists
+                if (mockDatabase.users.some(u => u.email === email)) {
+                    registerError.textContent = 'Email already registered';
+                    return;
+                }
+                
+                // Create new user
+                const newUser = {
+                    id: mockDatabase.users.length + 1,
+                    name: name,
+                    email: email,
+                    phone: phone || null,
+                    password: password,
+                    status: "Hey there! I'm using BBWhatsApp",
+                    avatar: name.charAt(0).toUpperCase(),
+                    online: true
+                };
+                
+                mockDatabase.users.push(newUser);
+                mockDatabase.currentUser = newUser;
+                showApp();
+                registerError.textContent = '';
+            });
+            
+            forgotForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const email = document.getElementById('forgot-email').value;
+                
+                // Check if user exists
+                const user = mockDatabase.users.find(u => u.email === email || u.phone === email);
+                
+                if (user) {
+                    // In a real app, you would send an OTP via email/SMS
+                    forgotError.textContent = '';
+                    forgotSuccess.textContent = `OTP sent to ${email}. For this demo, use any 6-digit number.`;
+                    showResetScreen();
+                    document.getElementById('reset-email').value = email;
+                } else {
+                    forgotError.textContent = 'No user found with this email/phone';
+                    forgotSuccess.textContent = '';
+                }
+            });
+            
+            resetForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const email = document.getElementById('reset-email').value;
+                const otp = document.getElementById('reset-otp').value;
+                const password = document.getElementById('reset-password').value;
+                const confirm = document.getElementById('reset-confirm').value;
+                
+                if (password !== confirm) {
+                    resetError.textContent = 'Passwords do not match';
+                    return;
+                }
+                
+                // In a real app, you would verify the OTP
+                if (otp.length !== 6 || !/^\d+$/.test(otp)) {
+                    resetError.textContent = 'Invalid OTP';
+                    return;
+                }
+                
+                // Update password
+                const user = mockDatabase.users.find(u => u.email === email || u.phone === email);
+                if (user) {
+                    user.password = password;
+                    resetError.textContent = '';
+                    showLoginScreen();
+                } else {
+                    resetError.textContent = 'User not found';
+                }
+            });
+            
+            // Message input
+            messageInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+            
+            sendButton.addEventListener('click', sendMessage);
+            
+            // Profile modal
+            profileButton.addEventListener('click', () => {
+                profileModal.style.display = 'flex';
+            });
+            
+            closeProfile.addEventListener('click', () => {
+                profileModal.style.display = 'none';
+            });
+            
+            profileForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                if (mockDatabase.currentUser) {
+                    mockDatabase.currentUser.name = profileName.value;
+                    mockDatabase.currentUser.status = profileStatus.value;
+                    mockDatabase.currentUser.avatar = profilePicture.value || mockDatabase.currentUser.name.charAt(0).toUpperCase();
+                    
+                    // Update UI
+                    currentUserAvatar.textContent = mockDatabase.currentUser.avatar;
+                    currentUserName.textContent = mockDatabase.currentUser.name;
+                    modalUserAvatar.textContent = mockDatabase.currentUser.avatar;
+                    
+                    if (currentChatUser) {
+                        chatUserAvatar.textContent = mockDatabase.currentUser.avatar;
+                    }
+                    
+                    // Update contacts list
+                    loadContacts();
+                    
+                    // Close modal
+                    profileModal.style.display = 'none';
+                }
+            });
+            
+            logoutButton.addEventListener('click', () => {
+                mockDatabase.currentUser = null;
+                showLoginScreen();
+            });
+            
+            // Back button for mobile
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 768) {
+                    sidebar.classList.remove('hidden');
+                    chatArea.classList.remove('active');
+                }
+            });
+        }
+
+        // Initialize the app
+        init();
+    </script>
 </body>
 </html>
